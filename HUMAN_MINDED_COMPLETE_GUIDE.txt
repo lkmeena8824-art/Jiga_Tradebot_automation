@@ -1,0 +1,254 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║     🤖 JIGA BHAI — HUMAN-MINDED BOT — COMPLETE SETUP GUIDE                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📡 PART 1: DATA SOURCES (Real-Time)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ PRIMARY: NSE India REST API (Real-time, 3-sec polling)                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ How it works:                                                              │
+│   • Bot har 3 second mein NSE API se data fetch karta hai                │
+│   • Cookies manage karta hai (NSE ka requirement)                        │
+│   • JSON response se live price nikalta hai                              │
+│   • Cache mein store karta hai                                           │
+│                                                                            │
+│ Endpoints:                                                                 │
+│   • NIFTY 50: /api/equity-stockIndices?index=NIFTY%2050                 │
+│   • BANK NIFTY: /api/equity-stockIndices?index=NIFTY%20BANK              │
+│   • SENSEX: BSE API (backup)                                             │
+│                                                                            │
+│ Speed: 3 seconds refresh                                                  │
+│ Cost: FREE                                                                │
+│ Accuracy: 100% Official NSE Data                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ OPTIONAL: WebSocket (For even faster data)                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Agar tu chahe toh broker API se WebSocket connect kar sakta hai:          │
+│                                                                            │
+│   • Zerodha Kite Connect                                                  │
+│   • Upstox API                                                            │
+│   • Angel One API                                                         │
+│   • Fyers API                                                             │
+│                                                                            │
+│ Ye REAL-TIME tick-by-tick data deta hai!                                  │
+│ Lekin iske liye broker account + API subscription chahiye                │
+│                                                                            │
+│ Current bot mein: NSE REST API (3-sec) is enough for Telegram channel     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ PART 2: TRADING HOURS (Jo Tune Maanga)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ MORNING SESSION: 9:00 AM — 11:00 AM                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 9:00 AM  → 🌅 Morning Setup Message                                        │
+│ 9:18 AM  → 🎯 CALL 1 (COMPULSORY — Opening Range Breakout)               │
+│            • First 15 min ka high/low calculate karta hai               │
+│            • Breakout direction pe call generate karta hai               │
+│            • Quality check: Score 60+ hona chahiye                       │
+│            • Agar score kam → No call (message bhejega)                  │
+│                                                                            │
+│ 10:00 AM → 📊 Market Update                                               │
+│ 10:30 AM → 🎯 CALL 2 (Optional — Only if quality setup)                  │
+│            • Cooldown: 20 min gap from Call 1                            │
+│            • Quality check mandatory                                       │
+│            • Agar setup weak → Skip karega                               │
+│                                                                            │
+│ 11:00 AM → 📊 Market Update                                               │
+│            • Morning session close                                        │
+│            • No more calls until 1 PM                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ AFTERNOON SESSION: 1:00 PM — 3:00 PM                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 1:00 PM  → 📊 Market Update (Afternoon opening)                           │
+│ 1:30 PM  → 🎯 CALL 3 (Optional — Afternoon momentum)                     │
+│            • Morning ke baad first call                                   │
+│            • Quality check + cooldown check                               │
+│            • Agar market flat → Skip                                      │
+│                                                                            │
+│ 2:00 PM  → 📊 Market Update                                               │
+│ 2:30 PM  → 🎯 CALL 4 (Optional — Last chance)                            │
+│            • Final call of the day                                        │
+│            • 3 PM ke baad NO CALLS                                        │
+│                                                                            │
+│ 3:00 PM  → 📊 Market Update                                               │
+│ 3:30 PM  → 🌙 Closing Report                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ NO TRADE TIMES:                                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ ❌ 11:00 AM — 1:00 PM → NO CALLS (Lunch break)                            │
+│ ❌ 3:00 PM — 9:00 AM (next day) → NO CALLS (Market closed)               │
+│ ❌ Weekend → NO CALLS                                                     │
+│                                                                            │
+│ Bot automatically check karta hai time:                                   │
+│   if 9:00 <= time <= 11:00 or 13:00 <= time <= 15:00:                   │
+│       → Call generate kar sakta hai                                       │
+│   else:                                                                    │
+│       → "Market closed/Outside hours" message                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 PART 3: QUALITY CONTROL (Human-Like Thinking)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Quality Score System (0-100):                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│ 1. RRR Check (30 points):                                                 │
+│    • 1:6+ → 30 pts (Excellent)                                           │
+│    • 1:4-5 → 25 pts (Good)                                               │
+│    • 1:3 → 20 pts (Minimum)                                              │
+│    • <1:3 → REJECTED!                                                    │
+│                                                                            │
+│ 2. Market Momentum (25 points):                                           │
+│    • >0.5% move → 25 pts (Strong)                                       │
+│    • 0.2-0.5% → 15 pts (Moderate)                                        │
+│    • <0.2% → 5 pts (Weak)                                                │
+│                                                                            │
+│ 3. Volume Confirmation (20 points):                                       │
+│    • >10 Cr volume → 20 pts (High)                                       │
+│    • 5-10 Cr → 10 pts (Average)                                          │
+│    • <5 Cr → 0 pts (Low)                                                 │
+│                                                                            │
+│ 4. Opening Range Quality (15 points):                                     │
+│    • Range >50 pts → 15 pts (Good)                                       │
+│    • Range 30-50 → 10 pts (Decent)                                       │
+│    • Range <30 → 0 pts (Too tight)                                       │
+│                                                                            │
+│ 5. Time Quality (10 points):                                              │
+│    • 9:00 AM → 10 pts (Prime time)                                       │
+│    • 10:00 AM → 7 pts (Good)                                             │
+│    • 1:00 PM → 8 pts (Afternoon open)                                    │
+│    • 2:00 PM → 5 pts (Late)                                              │
+│                                                                            │
+│ DECISION:                                                                  │
+│    • Score >= 60 → ✅ CALL APPROVED                                      │
+│    • Score 45-59 → ⚠️ BORDERLINE (Skip if SKIP_LOW_QUALITY=true)        │
+│    • Score < 45 → ❌ REJECTED                                            │
+│                                                                            │
+│ Example:                                                                   │
+│    RRR 1:4 (25) + Momentum 0.3% (15) + Volume 8 Cr (10)                 │
+│    + Range 45 (10) + Time 9 AM (10) = 70/100 ✅ APPROVED!               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🗣 PART 4: HUMAN-LIKE BEHAVIOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Bot Messages Like a Real Human Trader:                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│ Instead of: "Call generated. Entry: 22500"                               │
+│                                                                            │
+│ Bot says: "Bhai log, dekho ye setup! 👀                                    │
+│           Nifty ne opening range break kar diya hai!                       │
+│           Buyers ne control le liya hai! 💪                                │
+│           Entry lo 22500 pe! 🎯"                                           │
+│                                                                            │
+│ Instead of: "Target 1 hit. Book 50%"                                       │
+│                                                                            │
+│ Bot says: "✅ Bhai, Target 1 hit ho gaya!                                  │
+│           45 points ka profit aa gaya! 📊                                   │
+│           50% book kar lo, baaki trail karo!                               │
+│           SL entry pe shift karo! 🛡"                                      │
+│                                                                            │
+│ Instead of: "Stop loss hit"                                               │
+│                                                                            │
+│ Bot says: "❌ Bhai, SL hit ho gaya!                                       │
+│           -30 points ka loss hua.                                          │
+│           Koi baat nahi, ye part of game hai! 💪                          │
+│           Risk management ne bacha liya! 🛡                                │
+│           Next trade pe focus karo! 🎯"                                    │
+│                                                                            │
+│ Random phrases har message mein:                                          │
+│   • "Bhai log, ready ho jao!"                                             │
+│   • "Dekho bhai, market ne direction bata diya!"                         │
+│   • "Thoda risky hai lekin setup theek hai!"                               │
+│   • "Patience rakho, targets aa jayenge!"                                │
+│   • "Emotion control mein rakhna!"                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 PART 5: RAILWAY ENVIRONMENT VARIABLES (NEW)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────┬─────────────────────────────────────────────────────┐
+│ VARIABLE            │ VALUE / DESCRIPTION                               │
+├─────────────────────┼─────────────────────────────────────────────────────┤
+│ REQUIRED:           │                                                     │
+├─────────────────────┼─────────────────────────────────────────────────────┤
+│ BOT_TOKEN           │ @BotFather se mila token                           │
+│ CHANNEL_ID          │ Main channel ID (e.g., -1001234567890)             │
+│ ADMIN_IDS           │ Your Telegram ID (e.g., 123456789)                 │
+├─────────────────────┼─────────────────────────────────────────────────────┤
+│ OPTIONAL:           │                                                     │
+├─────────────────────┼─────────────────────────────────────────────────────┤
+│ VIP_CHANNEL_ID      │ VIP channel ID (for early alerts)                  │
+│ TIMEZONE            │ Asia/Kolkata (default IST)                         │
+│ MIN_RRR             │ 3.0 (minimum RRR, default 1:3)                     │
+│ MAX_DAILY_CALLS     │ 4 (max calls per day, default 4)                   │
+│ SKIP_LOW_QUALITY    │ true (skip borderline setups, default true)        │
+│ BROKER_API_KEY      │ (Optional) For WebSocket real-time data            │
+│ BROKER_API_SECRET   │ (Optional) Broker API secret                       │
+│ NSE_WS_URL          │ (Optional) Custom NSE WebSocket URL                  │
+└─────────────────────┴─────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 PART 6: GITHUB FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Repo: Jiga_Tradebot_automation
+
+Files to upload:
+├── jiga_bhai_HUMAN_MINDED_bot.py    ← NEW main file
+├── requirements.txt                  ← Updated (requests added)
+├── Procfile                          ← Same: worker: python jiga_bhai_HUMAN_MINDED_bot.py
+└── README.md                         ← Optional
+
+⚠️ DELETE old files:
+   • jiga_bhai_railway_bot.py
+   • jiga_bhai_REALTIME_bot.py
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 PART 7: DEPLOY STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. GitHub pe old bot files DELETE karo
+2. NEW file upload: jiga_bhai_HUMAN_MINDED_bot.py
+3. requirements.txt update karo (requests add karo)
+4. Railway pe redeploy karo
+5. Environment variables set karo (see Part 5)
+6. Bot start!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 SUMMARY OF WHAT THIS BOT DOES:
+
+✅ Real-time NSE data (3-sec refresh)
+✅ 9-11 AM & 1-3 PM trades ONLY
+✅ 9:18 AM compulsory morning call
+✅ Quality score 60+ required
+✅ Human-like messages & analysis
+✅ Smart risk management
+✅ Auto skip low-quality setups
+✅ Max 4 calls/day
+✅ RRR minimum 1:3, target 1:4-6
+✅ VIP early access (2 min)
+
+🚀 ALL THE BEST BHAI! DEPLOY KARO! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
